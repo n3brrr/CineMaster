@@ -42,11 +42,26 @@ export default function useMovies() {
         setLoading(false);
      }
     }
+    async function getMoviesByGenre(genre: string){
+        setLoading(true);
+        const endpoint = `discover/movie?with_genres=${genre}`;
+        const url = `${baseUrl}${endpoint}&api_key=${apiKey}`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            setMovies(data.results);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
 
     useEffect(() => {
         fetchPopular();
     }, []);
     
-    return {movies, loading, query, setQuery, getMovies};
+    return {movies, loading, query, setQuery, getMovies, getMoviesByGenre};
 }

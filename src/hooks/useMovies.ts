@@ -42,10 +42,11 @@ export default function useMovies() {
         setLoading(false);
      }
     }
-    async function getMoviesByGenre(genre: string){
+    async function getMoviesByGenre(genre: number, genreName: string){
         setLoading(true);
         const endpoint = `discover/movie?with_genres=${genre}`;
         const url = `${baseUrl}${endpoint}&api_key=${apiKey}`;
+        setQuery(genreName);
 
         try {
             const response = await fetch(url);
@@ -57,7 +58,6 @@ export default function useMovies() {
             setLoading(false);
         }
     }
-
 
     useEffect(() => {
         fetchPopular();

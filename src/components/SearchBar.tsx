@@ -13,6 +13,7 @@ export default function SearchBar({
       onSubmit={(e) => {
         e.preventDefault();
         onSearch(text);
+        setText("");
       }}
     >
       <input

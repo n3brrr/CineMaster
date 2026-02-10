@@ -10,58 +10,45 @@ export default function useMovies() {
     const [movies, setMovies] = useState<Movie[]>([]);
     const [loading, setLoading] = useState(true);
     const [query, setQuery] = useState("");
+    const [genre, setGenre] = useState<number | null>(null);
+    const [sortBy, setSortBy] = useState("popularity.desc");
     
-    async function fetchPopular(){
-        
-        try {
-            const response = await fetch(`${baseUrl}movie/popular?api_key=${apiKey}`);
-            const data = await response.json();
+    
+    async function fetchMovies(){
+      setLoading(true);
 
-            setMovies(data.results);
-        } catch (error) {
-            console.error(error);
-        }finally{
-            setLoading(false);
+        const isSearch = query.length > 0;
+        const endpoint = isSearch ? `search/movie` : `discover/movie`;
+        const params = new URLSearchParams({
+            api_key: apiKey,
+            language: "en-US"
+        });
+
+        if(isSearch){
+            params.append("query", query);
+        }else{
+            params.append("sort_by", sortBy);
+            if (genre) params.append("with_genres", genre.toString());
         }
-    }
-    async function getMovies(searchTerm: string = ""){
-     setLoading(true); 
-     const endpoint = searchTerm 
-     ? `search/movie?query=${searchTerm}`
-     : `movie/popular`;
-
-     const url = `${baseUrl}${endpoint}&api_key=${apiKey}`;
-
-     try {
-        const response = await fetch(url);
-        const data = await response.json();
-        setMovies(data.results);
-     } catch (error) {
-        console.error(error);
-     } finally {
-        setLoading(false);
-     }
-    }
-    async function getMoviesByGenre(genre: number, genreName: string){
-        setLoading(true);
-        const endpoint = `discover/movie?with_genres=${genre}`;
-        const url = `${baseUrl}${endpoint}&api_key=${apiKey}`;
-        setQuery(genreName);
-
+        
+        const url = `${baseUrl}${endpoint}?${params}`;
         try {
             const response = await fetch(url);
             const data = await response.json();
-            setMovies(data.results);
+            if (data.results){
+                setMovies(data.results);
+            }
+            
         } catch (error) {
-            console.error(error);
+            console.error("Error fetching movies:", error);
         } finally {
             setLoading(false);
         }
-    }
+    }   
 
     useEffect(() => {
-        fetchPopular();
-    }, []);
+        fetchMovies();
+    }, [query, genre, sortBy]);
     
-    return {movies, loading, query, setQuery, getMovies, getMoviesByGenre};
+    return {movies, loading, query, setQuery, fetchMovies, setGenre, setSortBy, sortBy};
 }

@@ -15,6 +15,7 @@ function App() {
   const {
     movies,
     loading,
+    error,
     sortBy,
     setSortBy,
     setGenre,
@@ -59,6 +60,12 @@ function App() {
       >
         CineMaster
       </h1>
+
+      {error && (
+        <div className="bg-red-900/20 border border-red-500 text-red-200 p-4 rounded-lg text-center my-5">
+          {error}
+        </div>
+      )}
 
       <SearchBar
         onSearch={(text) => {

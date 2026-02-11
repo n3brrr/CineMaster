@@ -1,6 +1,7 @@
 import type { Movie } from "./movie";
 import { useState } from "react";
 import { useEffect } from "react";
+import { useRef } from "react";
 
 const apiKey = import.meta.env.VITE_API_KEY;
 const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -13,7 +14,8 @@ export default function useMovies() {
     const [genre, setGenre] = useState<number | null>(null);
     const [sortBy, setSortBy] = useState("popularity.desc");
     const [currentPage, setCurrentPage] = useState(1);
-    
+    const [error, setError] = useState<string | null>(null);
+    const abortControllerRef = useRef<AbortController | null>(null);
     
     async function fetchMovies(isNextPage: boolean = false){
         
@@ -38,11 +40,29 @@ export default function useMovies() {
         
         const url = `${baseUrl}${endpoint}?${params.toString()}`;
 
+        if(abortControllerRef.current){
+            abortControllerRef.current.abort();
+        }
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
+        setLoading(true);
+        setError(null);
 
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, { signal: controller.signal });
+
+            if (!response.ok) {
+                throw new Error("Error al cargar las películas");
+            }
             const data = await response.json();
-          
+
+            if(data.results.length === 0 && !isNextPage){
+                setMovies([]);
+                setError("No se encontraron películas para esta búsqueda");
+                return;
+            }
+
             if(isNextPage){
                setMovies((prevMovies) => [...prevMovies, ...data.results]);
                setCurrentPage(pageToFetch);
@@ -51,8 +71,12 @@ export default function useMovies() {
                 setCurrentPage(1);
             }
             
-        } catch (error) {
-            console.error("Error fetching movies:", error);
+        } catch (err) {
+            const error = err as Error;
+            if (error.name === 'AbortError') return;
+            console.log(err);
+
+            setError("Hubo un problema al cargar las películas, intenta de nuevo");
         } finally {
             setLoading(false);
         }
@@ -63,5 +87,5 @@ export default function useMovies() {
         fetchMovies();
     }, [query, genre, sortBy]);
     
-    return {movies, loading, query, setQuery, fetchMovies, setGenre, setSortBy, sortBy, setCurrentPage};
+    return {movies, loading, query, setQuery, error, fetchMovies, setGenre, setSortBy, sortBy, setCurrentPage};
 }

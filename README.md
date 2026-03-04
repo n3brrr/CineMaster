@@ -4,7 +4,7 @@
 
 **Advanced Movie Explorer & Tracker**
 
-[🚀 Demo](#) - [🐛 Issues](https://github.com/n3brrr/CineMaster/issues) - [📖 Docs](#documentation)
+[🚀 Demo](cinemasters.vercel.app) - [🐛 Issues](https://github.com/n3brrr/CineMaster/issues) - [📖 Docs](#documentation)
 
 </div>
 

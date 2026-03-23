@@ -8,9 +8,7 @@ import App from "./App.tsx";
 const lenis = new Lenis({
   duration: 1.6,
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-  smooth: true,
-  smoothTouch: true,
-  
+  smoothWheel: true,
 });
 
 function raf(time: number) {

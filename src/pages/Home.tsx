@@ -6,6 +6,8 @@ import GenreFilters from "../components/GenreFilters";
 import SortSelector from "../components/SortSelector";
 import Loading from "../components/Loading/Loading";
 import { useEffect, useRef } from "react";
+import NeonBloom from "../components/NeonBloom";
+import StarryBackground from "../components/StarryBackground";
 
 export default function Home() {
   /**
@@ -48,10 +50,11 @@ export default function Home() {
   }, [loading, fetchMovies]);
 
   return (
-    <div className="m-15">
+    <div className="m-15 max-w-[50%] mx-auto">
+      <StarryBackground />
       {/* Title serves as a reset button for the application state */}
       <h1
-        className="text-4xl text-center text-white tracking-wider font-bold uppercase mt-5 cursor-crosshair"
+        className="text-6xl text-center text-white tracking-wider font-bold uppercase mt-5 cursor-crosshair"
         onClick={() => {
           setGenre(null);
           setQuery("");
@@ -66,13 +69,14 @@ export default function Home() {
           {error}
         </div>
       )}
-
-      <SearchBar
-        onSearch={(text) => {
-          setGenre(null);
-          setQuery(text);
-        }}
-      />
+      <NeonBloom>
+        <SearchBar
+          onSearch={(text) => {
+            setGenre(null);
+            setQuery(text);
+          }}
+        />
+      </NeonBloom>
 
       <GenreFilters
         onGenreClick={(id) => {
@@ -83,11 +87,11 @@ export default function Home() {
 
       <SortSelector currentSort={sortBy} onSortChange={setSortBy} />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-5">
-        {movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
-        ))}
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-5">
+        {!loading &&
+          movies.map((movie) => <MovieCard key={movie.id} movie={movie} />)}
       </div>
+      {loading && <Loading />}
 
       {/* Sentinel element for infinite scroll intersection detection */}
       <div ref={observerRef} className="h-20">

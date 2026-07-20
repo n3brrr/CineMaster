@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useRef, useState } from 'react';
 
 const PHRASES = [
@@ -17,24 +15,21 @@ export default function TypeWriter() {
   useEffect(() => {
     const phrase = PHRASES[phraseIndex];
     let i = 0;
-    setDisplayed('');
 
     const type = () => {
+      setDisplayed(phrase.slice(0, i));
+      i++;
       if (i <= phrase.length) {
-        setDisplayed(phrase.slice(0, i));
-        i++;
         timeoutRef.current = setTimeout(type, 70);
       } else {
-        timeoutRef.current = setTimeout(() => {
-          erase(phrase.length);
-        }, 3000);
+        timeoutRef.current = setTimeout(() => erase(phrase.length), 3000);
       }
     };
 
     const erase = (len: number) => {
+      setDisplayed(phrase.slice(0, len));
+      len--;
       if (len >= 0) {
-        setDisplayed(phrase.slice(0, len));
-        len--;
         timeoutRef.current = setTimeout(() => erase(len), 30);
       } else {
         setPhraseIndex((prev) => (prev + 1) % PHRASES.length);

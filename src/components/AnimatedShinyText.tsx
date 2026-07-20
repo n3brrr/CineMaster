@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 
@@ -9,7 +7,7 @@ interface AnimatedShinyTextProps {
 }
 
 export default function AnimatedShinyText({ children, className }: AnimatedShinyTextProps) {
-  const textRef = useRef<HTMLSpanElement>(null);
+  const textRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     gsap.to(textRef.current, {

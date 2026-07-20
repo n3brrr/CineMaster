@@ -23,6 +23,7 @@ export default function Home() {
     setGenre,
     setQuery,
     fetchMovies,
+    resetFilters,
   } = useMovies();
 
   // Reference element used to trigger infinite scrolling when visible
@@ -55,11 +56,7 @@ export default function Home() {
       {/* Title serves as a reset button for the application state */}
       <h1
         className="text-6xl text-center text-white tracking-wider font-bold uppercase mt-5 cursor-crosshair"
-        onClick={() => {
-          setGenre(null);
-          setQuery("");
-          setSortBy("popularity.desc");
-        }}
+        onClick={resetFilters}
       >
         CineMaster
       </h1>
@@ -91,7 +88,6 @@ export default function Home() {
         {!loading &&
           movies.map((movie) => <MovieCard key={movie.id} movie={movie} />)}
       </div>
-      {loading && <Loading />}
 
       {/* Sentinel element for infinite scroll intersection detection */}
       <div ref={observerRef} className="h-20">

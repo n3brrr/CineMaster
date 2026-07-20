@@ -4,7 +4,7 @@ import MovieBacklight from "./MovieBackLight";
 
 export default function MovieCard({ movie }: { movie: Movie }) {
   return (
-    <div className="relative flex flex-col items-center justify-center  rounded-lg m-2 shadow-lg shadow-black aspect-ratio-2/3 hover:scale-105 transition-all duration-300 cursor-pointer">
+    <div className="relative flex flex-col items-center justify-center  rounded-lg m-2 shadow-lg shadow-black aspect-[2/3] hover:scale-105 transition-all duration-300 cursor-pointer">
         <MovieBacklight movie={movie} />
       
       <Link

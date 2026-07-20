@@ -10,15 +10,15 @@ export default function useMovies() {
     const [query, setQuery] = useState("");
     const [genre, setGenre] = useState<number | null>(null);
     const [sortBy, setSortBy] = useState("popularity.desc");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
     const [error, setError] = useState<string | null>(null);
+    const currentPageRef = useRef(1);
+    const totalPagesRef = useRef(1);
     const abortControllerRef = useRef<AbortController | null>(null);
     
-    const fetchMovies = useCallback(async (isNextPage: boolean = false) => {
-        if (isNextPage && currentPage >= totalPages) return;
+    const doFetch = useCallback(async (isNextPage: boolean) => {
+        if (isNextPage && currentPageRef.current >= totalPagesRef.current) return;
 
-        const pageToFetch = isNextPage ? currentPage + 1 : 1;
+        const pageToFetch = isNextPage ? currentPageRef.current + 1 : 1;
         const isSearch = query.length > 0;
         const endpoint = isSearch ? `search/movie` : `discover/movie`;
         const params = new URLSearchParams({
@@ -34,16 +34,13 @@ export default function useMovies() {
             if (genre) params.append("with_genres", genre.toString());
         }
         
-        const url = `${baseUrl}${endpoint}?${params.toString()}`;
+        const url = `${baseUrl}/3/${endpoint}?${params.toString()}`;
 
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
         }
         const controller = new AbortController();
         abortControllerRef.current = controller;
-
-        setLoading(true);
-        setError(null);
 
         try {
             const response = await fetch(url, { signal: controller.signal });
@@ -58,14 +55,14 @@ export default function useMovies() {
                 return;
             }
 
-            setTotalPages(data.total_pages);
+            totalPagesRef.current = data.total_pages;
 
             if (isNextPage) {
                setMovies((prevMovies) => [...prevMovies, ...data.results]);
-               setCurrentPage(pageToFetch);
+               currentPageRef.current = pageToFetch;
             } else {
                 setMovies(data.results);
-                setCurrentPage(1);
+                currentPageRef.current = 1;
             }
             
         } catch (err) {
@@ -76,11 +73,27 @@ export default function useMovies() {
         } finally {
             setLoading(false);
         }
-    }, [query, genre, sortBy, currentPage, totalPages]);
+    }, [query, genre, sortBy]);
+
+    const fetchMovies = useCallback((isNextPage: boolean = false) => {
+        setLoading(true);
+        setError(null);
+        doFetch(isNextPage);
+    }, [doFetch]);
+
+    const resetFilters = useCallback(() => {
+        setGenre(null);
+        setQuery("");
+        setSortBy("popularity.desc");
+    }, []);
 
     useEffect(() => {
-        fetchMovies();
-    }, [query, genre, sortBy]);
+        currentPageRef.current = 1;
+        totalPagesRef.current = 1;
+        // The state updates happen inside doFetch after await, not synchronously
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        doFetch(false);
+    }, [query, genre, sortBy, doFetch]);
     
-    return { movies, loading, query, setQuery, error, fetchMovies, setGenre, setSortBy, sortBy, setCurrentPage };
+    return { movies, loading, query, setQuery, error, fetchMovies, setGenre, setSortBy, sortBy, resetFilters };
 }

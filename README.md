@@ -50,13 +50,13 @@ git clone https://github.com/n3brrr/CineMaster.git
 cd CineMaster
 
 # Install dependencies
-npm install
+pnpm install
 
 # Start Development Server
-npm run dev
+pnpm run dev
 
 # Build for Production
-npm run build
+pnpm run build
 ```
 
 ## 📁 Project Structure

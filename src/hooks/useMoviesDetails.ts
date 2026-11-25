@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Movie } from "./movie";
-
-const baseUrl = import.meta.env.VITE_BASE_URL;
-const apiKey = import.meta.env.VITE_API_KEY;
+import { tmdbUrl } from "./tmdb";
 
 export default function useMoviesDetails(movie_id: string) {
     const [loading, setLoading] = useState(true);
@@ -19,10 +17,9 @@ export default function useMoviesDetails(movie_id: string) {
             setError(null);
 
             try {
-                const response = await fetch(
-                    `${baseUrl}/3/movie/${movie_id}?api_key=${apiKey}`,
-                    { signal: controller.signal },
-                );
+                const response = await fetch(tmdbUrl(`movie/${movie_id}`), {
+                    signal: controller.signal,
+                });
                 if (!response.ok) {
                     throw new Error("Error en la petición");
                 }

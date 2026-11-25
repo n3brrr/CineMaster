@@ -1,8 +1,6 @@
 import type { Movie } from "./movie";
+import { tmdbUrl } from "./tmdb";
 import { useState, useEffect, useRef, useCallback } from "react";
-
-const apiKey = import.meta.env.VITE_API_KEY;
-const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export default function useMovies() {
     const [movies, setMovies] = useState<Movie[]>([]);
@@ -21,20 +19,19 @@ export default function useMovies() {
         const pageToFetch = isNextPage ? currentPageRef.current + 1 : 1;
         const isSearch = query.length > 0;
         const endpoint = isSearch ? `search/movie` : `discover/movie`;
-        const params = new URLSearchParams({
-            api_key: apiKey,
+        const params: Record<string, string> = {
             language: "en-US",
             page: pageToFetch.toString(),
-        });
+        };
 
         if (isSearch) {
-            params.append("query", query);
+            params.query = query;
         } else {
-            params.append("sort_by", sortBy);
-            if (genre) params.append("with_genres", genre.toString());
+            params.sort_by = sortBy;
+            if (genre) params.with_genres = genre.toString();
         }
-        
-        const url = `${baseUrl}/3/${endpoint}?${params.toString()}`;
+
+        const url = tmdbUrl(endpoint, params);
 
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();

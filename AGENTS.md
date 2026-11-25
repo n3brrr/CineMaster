@@ -26,15 +26,18 @@ pnpm preview    # vite preview
 - No `tailwind.config.js` — v4 uses CSS-first config
 - Plugin loaded in `vite.config.ts` via `@tailwindcss/vite`
 
-## Env vars (local `.env`, not committed)
+## Env vars (local `.env`, not committed; see `.env.example`)
 ```
-VITE_API_KEY=   # TMDB API key
-VITE_BASE_URL=  # https://api.themoviedb.org
+TMDB_API_KEY=   # TMDB API key, server-side only (no VITE_ prefix: never bundled into the client)
 ```
+In production set `TMDB_API_KEY` in Vercel (Production and Preview) as a regular variable; it is read only by `api/tmdb.ts`.
 
 ## Architecture
 - `src/main.tsx` → entry, sets up Lenis global smooth scroll
 - `src/App.tsx` → router: `/` (Home), `/movie/:id` (MovieDetail), `*` (404)
+- `api/tmdb.ts` → Vercel serverless proxy for TMDB: adds the API key server-side, allows only `discover/movie`, `search/movie` and `movie/:id`
+- `vite.config.ts` → also serves `/api/tmdb` in `pnpm dev` through a small middleware that loads `api/tmdb.ts`
+- `src/hooks/tmdb.ts` → `tmdbUrl()` builds the `/api/tmdb` URLs used by the hooks
 - `src/hooks/useMovies.ts` → discover/search with infinite scroll (IntersectionObserver in `Home.tsx`), abort controller
 - `src/hooks/useMoviesDetails.ts` → single movie fetch by id
 - `src/hooks/movie.ts` → `Movie` interface (shared type)
@@ -44,6 +47,6 @@ VITE_BASE_URL=  # https://api.themoviedb.org
 ## Conventions
 - Components: default exports, functional, `type` props interface inline
 - Routes: string paths, no route params beyond `:id`
-- API: direct `fetch` to TMDB (no client lib)
+- API: `fetch` to `/api/tmdb` via `tmdbUrl()` (no client lib); never put the TMDB key in a `VITE_` variable
 - Sorting: `popularity.desc`, `vote_average.desc`, `release_date.desc`
 - Genre ids: 28 (Action), 35 (Comedy), 27 (Horror), 16 (Animation) — hardcoded in `GenreFilters.tsx`
